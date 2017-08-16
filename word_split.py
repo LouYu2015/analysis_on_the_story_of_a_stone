@@ -56,27 +56,25 @@ def split(tree, sentence_length_count, string):
                 last_word_count = tree.query(last_word).counter
                 all_count = tree.query(last_word + current_word).counter
 
-                current_word_prob = current_word_count/count_all_possibilities(sentence_length_count, len(current_word))
+                current_word_prob = current_word_count/count_all_possibilities(sentence_length_count, 1)#len(current_word))
                 last_word_prob = last_word_count/count_all_possibilities(sentence_length_count, len(last_word))
                 all_prob = all_count/count_all_possibilities(sentence_length_count, len(last_word + current_word))
 
-                current_prob = current_word_prob*last_word_prob/all_prob
+                current_prob = prob[candidate]*current_word_prob#all_count/last_word_count
 
-                # print(current_prob, last_word_prob)
+                print(current_word_prob)
             else:
-                current_word_count = tree.query(split_mark+current_word).counter
-                all_possibilities = tree.query(split_mark).counter
-                # all_possibilities = current_word_count/count_all_possibilities(sentence_length_count, len(current_word))
-                # all_possibilities = sum(sentence_length_count)
+                current_word_count = tree.query(current_word).counter
+                all_possibilities = count_all_possibilities(sentence_length_count, 1)#len(current_word))
                 current_prob = current_word_count/all_possibilities
 
-                # print(current_word_count, all_possibilities)
+                print(current_prob)
 
             if current_prob > max_prob:
                 max_prob = current_prob
                 max_prob_candidate = candidate
 
-            # print("[%d:%d]%s/%s:%.10f" % (candidate, i, last_word, current_word, current_prob))
+            print("[%d:%d]%s/%s:%.10f" % (candidate, i, last_word, current_word, current_prob))
 
         prob.append(max_prob)
         last_word_index.append(max_prob_candidate)
@@ -103,6 +101,7 @@ def main():
     sentence_length_count = count_sentence_length(string)
     result = split_all(tree, sentence_length_count, string)
     output_file.write(result)
+    # split(tree, sentence_length_count, "宝玉道")
 
 
 if __name__ == "__main__":
