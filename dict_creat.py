@@ -18,7 +18,7 @@ def load():
 
 
 def construct_tree(string):
-    tree = suffix_tree.SuffixTree(string)
+    tree = suffix_tree.SuffixTree(string + "$")
     tree.update_counter()
     return tree
 
@@ -48,6 +48,11 @@ def new_cursor(tree, branch):
 
 
 def entropy_of_list(nodes):
+    nodes = [node for node in nodes if str(node)[0] != split_mark]
+
+    if not nodes:
+        return -1
+
     count_sum = sum([node.counter for node in nodes])
     probs = [node.counter/count_sum for node in nodes]
     return -sum([prob*math.log(prob, 2) for prob in probs])
@@ -80,10 +85,13 @@ def mark_words(tree, reversed_tree, count_of_length, cursor, string):
 
             if co >= 1:
                 reverse_lookup = reversed_tree.query_cursor(string[::-1])
-                left_entropy = entropy_of_list(reverse_lookup.current_node.next.values())
+                if reverse_lookup.length + 1 == len(reverse_lookup.current_node):
+                    left_entropy = entropy_of_list(reverse_lookup.current_node.next.values())
+                else:
+                    left_entropy = 0
                 right_entropy = entropy_of_list(cursor.current_node.next.values())
 
-                output_file.write("%s,%d,%f,%f,%f,%f\n" % (string, cursor.current_node.counter, co, left_entropy, right_entropy, co*(left_entropy+right_entropy)))
+                output_file.write("%s,%d,%f,%f,%f,%f,%f\n" % (string, cursor.current_node.counter, co, left_entropy, right_entropy, left_entropy+right_entropy, co*(left_entropy+right_entropy)))
 
         for key, child in cursor.current_node.next.items():
             next_cursor = suffix_tree.Cursor(cursor.current_node, key, len(child), tree.root)
@@ -96,6 +104,7 @@ def main():
     tree = construct_tree(string)
     print("Building reversed tree")
     reversed_tree = construct_tree(string[::-1])
+
     print("Counting sentences")
     sentence_length_count = count_sentence_length(string)
     count_of_length = [count_all_possibilities(sentence_length_count, i)

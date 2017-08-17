@@ -53,7 +53,11 @@ class Node:
         if index == 0:
             print("="*20)
 
-        print('\t'*index + str(self))
+        if len(self) > 10:
+            print("\t"*index + "...")
+        else:
+            print("\t"*index + str(self))
+
         for child in self.next.values():
             child.visualize(index + 1)
 
@@ -91,6 +95,10 @@ class Cursor:
     @property
     def current_node(self):
         return self.node.next[self.branch]
+
+    def print(self):
+        self.node.visualize()
+        print("Branch: %s, length:%d" % (self.branch, self.length))
 
 
 class SuffixTree:
