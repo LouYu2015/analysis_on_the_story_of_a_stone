@@ -5,6 +5,7 @@ class Node:
         self.end = end
 
         self.next = dict()
+        self.reverse_suffix_link = list()
         self.counter = None
         self.is_leaf = False
 
@@ -16,6 +17,10 @@ class Node:
             self.string[node.start]: node}
 
         return new_node
+
+    def add_suffix_link(self, to_node):
+        self.suffix_link = to_node
+        to_node.reverse_suffix_link.append(self)
 
     def __len__(self):
         return self.end - self.start
@@ -67,6 +72,8 @@ class Cursor:
             self.node = self.node.next[self.branch]
             self.length = 0
 
+    def move_front_forward(self):
+        pass
 
 class SuffixTree:
     def __init__(self, string):
@@ -98,7 +105,7 @@ class SuffixTree:
                 branch = self.cursor.next[self.branch] = Node(self.string, i, len(self.string))
 
                 if prev != None:
-                    prev.suffix_link = self.cursor
+                    prev.add_suffix_link(self.cursor)
                     prev = None
             else:
                 if self.length >= len(branch):
@@ -109,7 +116,7 @@ class SuffixTree:
 
                 if self.string[branch.start + self.length] == char:
                     if prev != None and self.cursor is not self.root:
-                        prev.suffix_link = self.cursor
+                        prev.add_suffix_link(self.cursor)
                     self.length += 1
                     return
 
@@ -117,7 +124,7 @@ class SuffixTree:
                 branch = self.cursor.next[self.branch] = branch.split(self.length, new_node)
 
                 if prev:
-                    prev.suffix_link = branch
+                    prev.add_suffix_link(branch)
                 prev = branch
 
             self.remaining -= 1
