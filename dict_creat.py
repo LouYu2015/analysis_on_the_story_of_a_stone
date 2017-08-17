@@ -10,7 +10,10 @@ word_split_mark = "/"
 input_file = open("preprocessing.txt", "r")
 output_file = open("dict.csv", "w")
 
-COUNT_THRESHOLD = 10
+MIN_COUNT = 5
+MIN_ENTROPY = 1.
+MIN_SCORE = 100.
+MIN_CO = 1.
 
 
 def load():
@@ -48,13 +51,10 @@ def new_cursor(tree, branch):
 
 
 def entropy_of_list(nodes):
-    nodes = [node for node in nodes if str(node)[0] != split_mark]
-
-    if not nodes:
-        return -1
-
-    count_sum = sum([node.counter for node in nodes])
-    probs = [node.counter/count_sum for node in nodes]
+    node_counts = [node.counter if str(node)[0] != split_mark else 1.
+                   for node in nodes]
+    count_sum = sum(node_counts)
+    probs = [count/count_sum for count in node_counts]
     return -sum([prob*math.log(prob, 2) for prob in probs])
 
 
@@ -62,7 +62,7 @@ def mark_words(tree, reversed_tree, count_of_length, cursor, string):
     if split_mark in string:
         return
 
-    if cursor.current_node.counter >= COUNT_THRESHOLD:
+    if cursor.current_node.counter >= MIN_COUNT:
         if len(string) > 1:
             p_no_split = cursor.current_node.counter/count_of_length[len(string)]
 
@@ -83,7 +83,7 @@ def mark_words(tree, reversed_tree, count_of_length, cursor, string):
 
             co = p_no_split/max(p_split)
 
-            if co >= 1:
+            if co >= MIN_CO:
                 reverse_lookup = reversed_tree.query_cursor(string[::-1])
                 if reverse_lookup.length + 1 == len(reverse_lookup.current_node):
                     left_entropy = entropy_of_list(reverse_lookup.current_node.next.values())
@@ -91,7 +91,10 @@ def mark_words(tree, reversed_tree, count_of_length, cursor, string):
                     left_entropy = 0
                 right_entropy = entropy_of_list(cursor.current_node.next.values())
 
-                output_file.write("%s,%d,%f,%f,%f,%f,%f\n" % (string, cursor.current_node.counter, co, left_entropy, right_entropy, left_entropy+right_entropy, co*(left_entropy+right_entropy)))
+                score = co*(left_entropy+right_entropy)
+
+                if score > MIN_SCORE and left_entropy > MIN_ENTROPY and right_entropy > MIN_ENTROPY:
+                    output_file.write("%s,%d,%f,%f,%f,%f,%f\n" % (string, cursor.current_node.counter, co, left_entropy, right_entropy, left_entropy+right_entropy, score))
 
         for key, child in cursor.current_node.next.items():
             next_cursor = suffix_tree.Cursor(cursor.current_node, key, len(child), tree.root)
