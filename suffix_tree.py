@@ -50,16 +50,20 @@ class Node:
         return self.counter
 
     def visualize(self, index=0):
+        if index == 0:
+            print("="*20)
+
         print('\t'*index + str(self))
         for child in self.next.values():
             child.visualize(index + 1)
 
 
 class Cursor:
-    def __init__(self, node, branch, length):
+    def __init__(self, node, branch, length, root=None):
         self.node = node
         self.branch = branch
         self.length = length
+        self.root = root
 
     def current_char(self):
         return str(self.node.next[self.branch])[self.length]
@@ -67,13 +71,27 @@ class Cursor:
     def move_forward(self, char):
         self.length += 1
 
-        if self.length >= len(self.node):
-            self.branch = char
+        if self.length >= len(self.node.next[self.branch]):
             self.node = self.node.next[self.branch]
-            self.length = 0
+            self.branch = char
+            self.length -= len(self.node)
 
-    def move_front_forward(self):
-        pass
+    def move_front_forward(self, char):
+        assert self.root is not None
+
+        try:
+            self.node = self.node.suffix_link
+        except AttributeError:
+            assert self.length > 0
+
+            self.length -= 1
+            self.branch = char
+            self.node = self.root
+
+    @property
+    def current_node(self):
+        return self.node.next[self.branch]
+
 
 class SuffixTree:
     def __init__(self, string):
@@ -141,10 +159,14 @@ class SuffixTree:
     def update_counter(self):
         self.root.update_counter()
 
-    def query(self, string):
+    def query_cursor(self, string):
         assert string
 
-        cursor = Cursor(self.root, string[0], 0)
-        for char in string:
+        cursor = Cursor(self.root, string[0], 0, self.root)
+        for char in string[1:]:
             cursor.move_forward(char)
-        return cursor.node
+        return cursor
+
+    def query(self, string):
+        cursor = self.query_cursor(string)
+        return cursor.current_node
