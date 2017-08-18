@@ -1,8 +1,8 @@
 import re
 
 split_mark = "#"
-filtered_chars = "『』［］"
-split_chars = " 《》，、。？！；：“”‘’'\n\r-=—().【】"
+filtered_chars = "『』［］[]〔〕"
+split_chars = " …《》，、。？！；：“”‘’'\n\r-=—()（）.【】"
 
 input_file = open("hlm.txt", "r")
 output_file = open("preprocessing.txt", "w")
