@@ -7,6 +7,7 @@ friendly_split_mark = "，"
 word_split_mark = "/"
 
 input_file = open("preprocessing.txt", "r")
+dict_file = open("dict.csv", "r")
 output_file = open("word_split.txt", "w")
 
 
@@ -18,6 +19,18 @@ def construct_tree(string):
     tree = suffix_tree.SuffixTree(string)
     tree.update_counter()
     return tree
+
+
+def load_dict():
+    dictionary = dict()
+    lines = dict_file.read().split("\n")
+    for line in lines:
+        if line:
+            cols = line.split(",")
+            dictionary[cols[0]] = int(cols[1]) # *float(cols[-1])
+
+    count_sum = sum(dictionary.values())
+    return {key: value/count_sum for key, value in dictionary.items()}
 
 
 def count_sentence_length(string):
@@ -40,37 +53,32 @@ def count_all_possibilities(sentence_length_count, word_length):
     return count_sum
 
 
-def split(tree, sentence_length_count, string):
+def split(tree, dictionary, sentence_length_count, string):
     prob = [1]
     last_word_index = [0]
 
     for i in range(1, len(string)+1):
         max_prob = -1
         max_prob_candidate = None
+        have_whole_word = False
         for candidate in range(max(0, i-5), i):
-            last_word = string[last_word_index[candidate]: candidate]
+            # last_word = string[last_word_index[candidate]: candidate]
             current_word = string[candidate: i]
 
-            if last_word:
-                current_word_count = tree.query(current_word).counter
-                # last_word_count = tree.query(last_word).counter
-                # all_count = tree.query(last_word + current_word).counter
+            try:
+                current_word_prob = dictionary[current_word]
+                have_whole_word = True
+                # current_word_count = tree.query(current_word).counter
+                # print(current_word, current_word_prob, current_word_count/count_all_possibilities(sentence_length_count, 1))
+                # input()
+            except KeyError:
+                if have_whole_word:
+                    current_word_prob = 0
+                else:
+                    current_word_count = tree.query(current_word).counter
+                    current_word_prob = current_word_count/count_all_possibilities(sentence_length_count, 1)#len(current_word))
 
-                current_word_prob = current_word_count/count_all_possibilities(sentence_length_count, 1)#len(current_word))
-                # last_word_prob = last_word_count/count_all_possibilities(sentence_length_count, len(last_word))
-                # all_prob = all_count/count_all_possibilities(sentence_length_count, len(last_word + current_word))
-
-                current_prob = prob[candidate]*current_word_prob*300#all_count/last_word_count
-
-                # print(current_word_prob, current_word_count)
-            else:
-                # current_word_count = tree.query(split_mark+current_word).counter
-                # all_possibilities = tree.qquery(split_mark+current_word).counter
-                current_word_count = tree.query(current_word).counter
-                all_possibilities = count_all_possibilities(sentence_length_count, len(current_word))
-                current_prob = current_word_count/all_possibilities
-
-                # print(current_word_count, all_possibilities)
+            current_prob = prob[candidate]*current_word_prob
 
             if current_prob > max_prob:
                 max_prob = current_prob
@@ -90,10 +98,10 @@ def split(tree, sentence_length_count, string):
     return list(reversed(result))
 
 
-def split_all(tree, sentence_length_count, string, out_file):
+def split_all(tree, dictionary, sentence_length_count, string, out_file):
     all_list = string.split(split_mark)
-    for i, s in enumerate(all_list):
-        out_file.write(word_split_mark.join(split(tree, sentence_length_count, s)))
+    for i, s in enumerate(all_list[:50]):
+        out_file.write(word_split_mark.join(split(tree, dictionary, sentence_length_count, s)))
         out_file.write(friendly_split_mark)
 
         if i % 100 == 0:
@@ -101,12 +109,30 @@ def split_all(tree, sentence_length_count, string, out_file):
 
 
 def main():
+    print("Loading dictionary")
+    dictionary = load_dict()
+
+    print("Building tree")
     string = load()
     tree = construct_tree(string)
     sentence_length_count = count_sentence_length(string)
-    split_all(tree, sentence_length_count, string, output_file)
+
+    print("Processing")
+    split_all(tree, dictionary, sentence_length_count, string, output_file)
     # split(tree, sentence_length_count, "宝玉道")
 
 
+def test_cursor():
+    tree = construct_tree("banana$")
+    tree.root.visualize()
+    cursor = tree.query_cursor("an")
+    cursor.node.visualize()
+    cursor.current_node.visualize()
+    cursor.move_front_forward()
+    cursor.node.visualize()
+    cursor.current_node.visualize()
+
+
 if __name__ == "__main__":
+    # test_cursor()
     main()
