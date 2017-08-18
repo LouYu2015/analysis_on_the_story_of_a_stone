@@ -24,12 +24,12 @@ def construct_tree(string):
 def load_dict():
     dictionary = dict()
     lines = dict_file.read().split("\n")
+    count_sum = 0
     for line in lines:
         if line:
             cols = line.split(",")
-            dictionary[cols[0]] = int(cols[1]) # *float(cols[-1])
-
-    count_sum = sum(dictionary.values())
+            dictionary[cols[0]] = int(cols[1])*float(cols[-1])
+            count_sum += int(cols[1])
     return {key: value/count_sum for key, value in dictionary.items()}
 
 
@@ -53,6 +53,21 @@ def count_all_possibilities(sentence_length_count, word_length):
     return count_sum
 
 
+def get_prob(tree, dictionary, sentence_length_count, string):
+    global decay
+    try:
+        current_word_prob = dictionary[string]
+    except KeyError:
+        current_word_count = tree.query(string).counter
+        current_word_prob = current_word_count / count_all_possibilities(sentence_length_count, len(string))
+
+        if current_word_count == 1:
+            for i in range(len(string)-1):
+                current_word_prob /= decay
+
+    return current_word_prob
+
+
 def split(tree, dictionary, sentence_length_count, string):
     prob = [1]
     last_word_index = [0]
@@ -61,24 +76,10 @@ def split(tree, dictionary, sentence_length_count, string):
         max_prob = -1
         max_prob_candidate = None
         have_whole_word = False
-        for candidate in range(max(0, i-5), i):
+        for candidate in range(i):# range(max(0, i-4), i):
             # last_word = string[last_word_index[candidate]: candidate]
             current_word = string[candidate: i]
-
-            try:
-                current_word_prob = dictionary[current_word]
-                have_whole_word = True
-                # current_word_count = tree.query(current_word).counter
-                # print(current_word, current_word_prob, current_word_count/count_all_possibilities(sentence_length_count, 1))
-                # input()
-            except KeyError:
-                if have_whole_word:
-                    current_word_prob = 0
-                else:
-                    current_word_count = tree.query(current_word).counter
-                    current_word_prob = current_word_count/count_all_possibilities(sentence_length_count, 1)#len(current_word))
-
-            current_prob = prob[candidate]*current_word_prob
+            current_prob = prob[candidate]*get_prob(tree, dictionary, sentence_length_count, current_word)
 
             if current_prob > max_prob:
                 max_prob = current_prob
@@ -98,14 +99,32 @@ def split(tree, dictionary, sentence_length_count, string):
     return list(reversed(result))
 
 
+def split2(tree, dictionary, sentence_length_count, string):
+    max_prob = get_prob(tree, dictionary, sentence_length_count, string)
+    result = string
+
+    for i in range(1, len(string)):
+        prob_left, result_left = split2(tree, dictionary, sentence_length_count, string[:i])
+        prob_right, result_right = split2(tree, dictionary, sentence_length_count, string[i:])
+
+        if prob_left*prob_right > max_prob:
+            result = result_left + word_split_mark + result_right
+            max_prob = prob_left*prob_right
+
+    # print(string, max_prob, result)
+    return max_prob, result
+
+
 def split_all(tree, dictionary, sentence_length_count, string, out_file):
     all_list = string.split(split_mark)
-    for i, s in enumerate(all_list[:50]):
+    for i, s in enumerate(all_list):
         out_file.write(word_split_mark.join(split(tree, dictionary, sentence_length_count, s)))
         out_file.write(friendly_split_mark)
 
         if i % 100 == 0:
             print(i/len(all_list))
+
+    out_file.write("\n\n")
 
 
 def main():
@@ -118,9 +137,9 @@ def main():
     sentence_length_count = count_sentence_length(string)
 
     print("Processing")
+    global decay
+    decay = 1000
     split_all(tree, dictionary, sentence_length_count, string, output_file)
-    # split(tree, sentence_length_count, "宝玉道")
-
 
 def test_cursor():
     tree = construct_tree("banana$")
