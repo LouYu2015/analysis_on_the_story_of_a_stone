@@ -55,7 +55,15 @@ def entropy_of_list(nodes):
                    for node in nodes]
     count_sum = sum(node_counts)
     probs = [count/count_sum for count in node_counts]
-    return -sum([prob*math.log(prob, 2) for prob in probs])
+
+    entropy = -sum([prob*math.log(prob, 2) for prob in probs])
+
+    for node in nodes:
+        if str(node)[0] == split_mark \
+              and node.counter >= 0.5 * count_sum + node.counter - 1:
+            return max(entropy, MIN_ENTROPY + 0.00001)
+
+    return entropy
 
 
 def mark_words(tree, reversed_tree, count_of_length, cursor, string):
