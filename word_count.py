@@ -8,6 +8,7 @@ counter = dict()
 
 def main():
     string = input_file.read()
+    string = ''.join(string.split("\n"))
 
     string = word_split_mark.join(string.split(split_mark))
     words = string.split(word_split_mark)
