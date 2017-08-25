@@ -76,7 +76,7 @@ def split(tree, dictionary, sentence_length_count, string):
         max_prob = -1
         max_prob_candidate = None
         have_whole_word = False
-        for candidate in range(i):# range(max(0, i-4), i):
+        for candidate in range(max(0, i-4), i):
             # last_word = string[last_word_index[candidate]: candidate]
             current_word = string[candidate: i]
             current_prob = prob[candidate]*get_prob(tree, dictionary, sentence_length_count, current_word)
