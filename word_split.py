@@ -8,7 +8,8 @@ word_split_mark = "/"
 
 input_file = open("preprocessing.txt", "r")
 dict_file = open("dict.csv", "r")
-output_file = open("word_split.txt", "w")
+
+decay = 1000
 
 
 def load():
@@ -137,9 +138,12 @@ def main():
     sentence_length_count = count_sentence_length(string)
 
     print("Processing")
+    output_file = open("word_split.txt", "w")
     global decay
     decay = 1000
+
     split_all(tree, dictionary, sentence_length_count, string, output_file)
+
 
 def test_cursor():
     tree = construct_tree("banana$")
