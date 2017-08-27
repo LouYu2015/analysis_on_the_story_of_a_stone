@@ -5,7 +5,6 @@ filtered_chars = "『』［］[]〔〕"
 split_chars = " …《》，、。？！；：“”‘’'\n\r-=—()（）.【】"
 
 input_file = open("hlm.txt", "r")
-output_file = open("preprocessing.txt", "w")
 
 
 def str_replace(string, str_from, str_to=""):
@@ -32,6 +31,8 @@ def preprocessing(string):
 
 
 def main():
+    output_file = open("preprocessing.txt", "w")
+
     string = input_file.read()
     output_file.write(preprocessing(string))
 
