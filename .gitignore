@@ -1,3 +1,5 @@
 *.txt
+*.csv
 .idea/*
 __pycache__/*
+html/*
