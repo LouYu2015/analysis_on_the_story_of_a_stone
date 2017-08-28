@@ -19,6 +19,9 @@ def variance(array):
 
 def count_word_for_chapter(counter, chapter_no, words):
     for word in words:
+        if len(word) <= 1:
+            continue
+
         if word in counter:
             counter[word][chapter_no-1] += 1
         else:
