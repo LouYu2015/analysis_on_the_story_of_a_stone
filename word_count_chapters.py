@@ -9,6 +9,9 @@ input_folder = "chapters_split"
 
 
 def variance(array):
+    """
+    Calculate variance of a list of numbers.
+    """
     mean = sum(array)/len(array)
 
     result = 0

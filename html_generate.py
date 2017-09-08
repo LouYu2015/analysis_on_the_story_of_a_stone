@@ -1,14 +1,20 @@
 import locale
 import urllib.request
+import os
 
 input_file = open("word_count.csv", "r")
-output_index = open("html/index.html", "w")
-output_expaned = open("html/expanded.html", "w")
+result_folder = "html"
+
+if not os.path.exists(result_folder):
+    os.mkdir(result_folder)
+
+output_index = open(os.path.join(result_folder, "index.html"), "w")
+output_expanded = open(os.path.join(result_folder, "expanded.html"), "w")
 
 locale.setlocale(locale.LC_COLLATE, "zh_CN.UTF8")
 
 
-def load_file():
+def load_data():
     lines = input_file.read().split("\n")
     result = []
     for line in lines:
@@ -57,7 +63,7 @@ def generate_expanded(table):
 
 
 def apply_template(string):
-    temp = '''
+    template = '''
 <!DOCTYPE html>
 <html>
 <head>
@@ -98,13 +104,13 @@ analytics"></a></div></noscript>
 </body>
 </html>
 '''
-    return temp % string
+    return template % string
 
 
 def main():
-    lines = sorted_table(load_file())
+    lines = sorted_table(load_data())
     output_index.write(apply_template(generate_index(lines)))
-    output_expaned.write(apply_template(generate_expanded(lines)))
+    output_expanded.write(apply_template(generate_expanded(lines)))
 
 if __name__ == '__main__':
     main()

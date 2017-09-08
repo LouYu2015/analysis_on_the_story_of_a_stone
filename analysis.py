@@ -1,44 +1,55 @@
 import word_count_chapters
+
 from sklearn import decomposition
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 import random
 
-number_of_chapters = 120
+number_of_chapters = 120  # Number of chapters
+ignored_words = ["笑道", "宝玉"]  # Words to ignore
+randomly_choose_training_samples = False  # Choose training samples for PCA randomly
+training_samples_portion = 0.5  # Portion of training samples
+adjust_prob = True  # Adjust probability for 1-79 chapters
 
 
 def main():
-    output_file = open("pca.csv", "w")
+    # output_file = open("pca.csv", "w")
 
-    feature = []
+    feature_names = []  # Words that are used as features
     counter = word_count_chapters.count_all_chapter()
+
+    # Build data frame
     data_frame = [list() for _ in range(number_of_chapters)]
     for word, counts in counter.items():
+        # Filter features
         normalized_variance = word_count_chapters.variance(counts)/(sum(counts)/number_of_chapters)
-
-        if normalized_variance > 0.85 or word in ("笑道", "宝玉"):
+        if normalized_variance > 0.85 or word in ignored_words:
             continue
 
+        # Add to data frame
         for i in range(number_of_chapters):
             data_frame[i].append(counts[i])
-        feature.append(word)
+        feature_names.append(word)
 
         # output_file.write("%s,%f\n" % (word, normalized_variance))
-    
+    data_frame = np.array(data_frame)
+
     # output_file.close()
     # exit()
 
-    data_frame = np.array(data_frame)
-
+    # Start PCA
     while True:
         pca = decomposition.PCA(n_components=3, whiten=True, svd_solver="full")
         pca.fit(split_data(data_frame))
         result = pca.transform(data_frame)
 
-        print(pca.explained_variance_ratio_)
-        save_components(pca.components_, feature)
+        save_components(pca.components_, feature_names)
 
-        print(feature)
-        print(len(data_frame[0]))
+        print("Explained variance ratio:", pca.explained_variance_ratio_)
+        print("Features:", feature_names)
+        print("Number of Features:", len(feature_names))
 
         # save_result_csv(result, output_file)
 
@@ -46,29 +57,24 @@ def main():
 
 
 def split_data(data_frame, prob=0.5):
-    return data_frame
+    if not randomly_choose_training_samples:
+        print("Training chapters: all")
+        return data_frame
 
     training_data = []
-    training_lines = []
+    training_chapters = []
     for i, line in enumerate(data_frame):
-        adjusted_prob = prob/4 if i < 80 else prob
+        if adjust_prob:
+            adjusted_prob = prob/2 if i < 80 else prob
+        else:
+            adjusted_prob = prob
 
         if random.random() < adjusted_prob:
             training_data.append(line)
-            training_lines.append(i)
+            training_chapters.append(i)
 
-    print("training lines:", training_lines)
+    print("Training chapters:", training_chapters)
     return np.array(training_data)
-
-
-def save_result_csv(result, output_file):
-    for i, line in enumerate(result):
-        if i < 40:
-            output_file.write("%f,%f,,\n" % (line[0], line[1]))
-        elif i < 80:
-            output_file.write("%f,,%f,\n" % (line[0], line[1]))
-        else:
-            output_file.write("%f,,,%f\n" % (line[0], line[1]))
 
 
 def save_components(components, features):
@@ -81,9 +87,6 @@ def save_components(components, features):
 
 
 def plot_result(result):
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D
-
     figure = plt.figure()
     # plot = figure.add_subplot(111)
     plot = Axes3D(figure)
@@ -92,15 +95,14 @@ def plot_result(result):
     plot.set_zlabel("component 3")
 
     for i, line in enumerate(result):
-        r = min(i/60, 1)
-        g = min(2-i/60, 1)
-        b = 0
+        # r = min(i/60, 1)
+        # g = min(2-i/60, 1)
+        # b = 0
+        #
+        # r, g = g, r
+        #
+        # color = (r, g, b, 0.5)
 
-        r, g = g, r
-
-        color = (r, g, b, 0.5)
-
-        marker = "o"
         # if i > 80:
         #     marker = "s"
         #     color = "b"
@@ -110,6 +112,7 @@ def plot_result(result):
         # else:
         #     marker = "o"
         #     color = "g"
+        marker = "o"
         alpha = 0.5
 
         if i > 80:

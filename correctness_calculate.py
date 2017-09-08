@@ -1,5 +1,5 @@
-word_split_marks = "/\n"
-split_mark = "，"
+word_split_marks = "/\n"  # Split marks for word
+split_mark = "，"  # Split marks for sentence
 
 file_name = input("Enter file prefix:")
 
@@ -12,13 +12,13 @@ def split_all(string):
 
     for word_split_mark in word_split_marks:
         string = word_split_marks[0].join(string.split(word_split_mark))
-    return string.split(word_split_marks[0])
+    result = string.split(word_split_marks[0])
+    return [word for word in result if word]
 
 result = split_all(input_file.read())
 answer = split_all(answer.read())
 
-# print(result)
-# print(answer)
+assert "".join(result) == "".join(answer), "Content is not the same"
 
 len_result = 0
 len_answer = 0
