@@ -13,14 +13,19 @@ def main():
     counter = word_count_chapters.count_all_chapter()
     data_frame = [list() for _ in range(number_of_chapters)]
     for word, counts in counter.items():
-        normalized_variance = word_count_chapters.variance(counts)/sum(counts)
+        normalized_variance = word_count_chapters.variance(counts)/(sum(counts)/number_of_chapters)
 
-        if normalized_variance > 0.007 or word in ("笑道", "宝玉"):
+        if normalized_variance > 0.85 or word in ("笑道", "宝玉"):
             continue
 
         for i in range(number_of_chapters):
             data_frame[i].append(counts[i])
         feature.append(word)
+
+        # output_file.write("%s,%f\n" % (word, normalized_variance))
+    
+    # output_file.close()
+    # exit()
 
     data_frame = np.array(data_frame)
 
@@ -105,7 +110,7 @@ def plot_result(result):
         # else:
         #     marker = "o"
         #     color = "g"
-        alpha = 0.75
+        alpha = 0.5
 
         if i > 80:
             color = (0, 0, 1, alpha)
@@ -126,6 +131,9 @@ def plot_result(result):
         #     color = (1, 1, 0, alpha)
         # else:
         #     color = (1, 0, 0, alpha)
+
+        # plot.text(line[0], line[1], str(i+1), size=10, ha="center", va="center")
+        # plot.scatter(line[0], line[1], marker=marker, c=color, s=200, linewidths=0)
 
         plot.text(line[0], line[1], line[2], str(i+1), size=10, ha="center", va="center")
         plot.scatter(line[0], line[1], line[2], marker=marker, c=color, s=200, linewidths=0)
