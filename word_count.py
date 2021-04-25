@@ -31,5 +31,6 @@ def main():
         if len(row[0]) > 1:
             output_file.write("%s,%d\n" % (row[0], row[1]))
 
+
 if __name__ == "__main__":
     main()

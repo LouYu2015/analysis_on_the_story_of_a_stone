@@ -51,5 +51,6 @@ def main():
     string = input_file.read()
     output_file.write(preprocessing(string))
 
+
 if __name__ == "__main__":
     main()

@@ -94,7 +94,7 @@ scJsHost+
 "statcounter.com/counter/counter.js'></"+"script>");
 </script>
 <noscript><div class="statcounter"><a title="web analytics"
-href="http://statcounter.com/" target="_blank"><img
+href="https://statcounter.com/" target="_blank"><img
 class="statcounter"
 src="//c.statcounter.com/11426958/0/a175aef9/0/" alt="web
 analytics"></a></div></noscript>
@@ -111,6 +111,7 @@ def main():
     lines = sorted_table(load_data())
     output_index.write(apply_template(generate_index(lines)))
     output_expanded.write(apply_template(generate_expanded(lines)))
+
 
 if __name__ == '__main__':
     main()
