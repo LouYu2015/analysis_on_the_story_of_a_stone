@@ -51,7 +51,7 @@ Split words apart.
 
 ### Output
 
-* word_split.text: splitted text.
+* word_split.text: split text.
 
 ## word_split_chapters.py
 
@@ -65,7 +65,7 @@ Split words apart in all chapters.
 
 ### Output
 
-* chapter_split(folder): splitted text.  One file for each chapter, numbered from "1.text".
+* chapter_split(folder): split text.  One file for each chapter, numbered from "1.text".
 
 ## word_count.py
 
@@ -73,19 +73,19 @@ Count words.
 
 ### Input
 
-* word_split.text: splitted text.
+* word_split.text: split text.
 
 ### Output
 
-* word_count.csv: counting result, sorted by number of occurence.
+* word_count.csv: counting result, sorted by number of occurrence.
 
 ## word_count_chapters.py
 
-Count words in each chapters.
+Count words in each chapter.
 
 ### Input
 
-* chapter_split(folder): splitted text for each chapter.
+* chapter_split(folder): split text for each chapter.
 
 ### Output
 
@@ -101,15 +101,15 @@ Do PCA analysis. Show result on screen.
 
 ### Input
 
-* word_count_chapters.csv: word counting result for each chapters.
+* word_count_chapters.csv: word counting result for each chapter.
 
 ### Output
 
-* components.csv: weights for each components.
+* components.csv: weights for each component.
 
 ## suffix_tree.py
 
-Libary for suffix tree.
+Library for suffix tree.
 
 ## correctness_calculate.py
 
