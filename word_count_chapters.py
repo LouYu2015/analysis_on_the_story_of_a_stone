@@ -12,12 +12,12 @@ def variance(array):
     """
     Calculate variance of a list of numbers.
     """
-    mean = sum(array)/len(array)
+    mean = sum(array) / len(array)
 
     result = 0
     for number in array:
-        result += abs(number - mean)**2
-    return math.sqrt(result/len(array))
+        result += abs(number - mean) ** 2
+    return math.sqrt(result / len(array))
 
 
 def count_word_for_chapter(counter, chapter_no, words):
@@ -26,10 +26,10 @@ def count_word_for_chapter(counter, chapter_no, words):
             continue
 
         if word in counter:
-            counter[word][chapter_no-1] += 1
+            counter[word][chapter_no - 1] += 1
         else:
-            counter[word] = [0]*number_of_chapters
-            counter[word][chapter_no-1] = 1
+            counter[word] = [0] * number_of_chapters
+            counter[word][chapter_no - 1] = 1
 
 
 def count_all_chapter():
@@ -59,13 +59,14 @@ def save_data(counter, output_file):
                 output_file.write("%d," % number)
 
             row_variance = variance(row[1])
-            output_file.write("%d,%f,%f\n" % (sum(row[1]), row_variance, row_variance/sum(row[1])))
+            output_file.write("%d,%f,%f\n" % (sum(row[1]), row_variance, row_variance / sum(row[1])))
 
 
 def main():
     output_file = open("word_count_chapters.csv", "w")
     counter = count_all_chapter()
     save_data(counter, output_file)
+
 
 if __name__ == "__main__":
     main()

@@ -34,7 +34,7 @@ def count_sentence_length(string):
     length = [len(string) for string in sentences]
     max_length = max(length)
 
-    count = [0]*(max_length+1)
+    count = [0] * (max_length + 1)
     for l in length:
         count[l] += 1
 
@@ -48,7 +48,7 @@ def count_all_possibilities(sentence_length_count, word_length):
     count_sum = 0
     for length, count in enumerate(sentence_length_count):
         if length >= word_length:
-            count_sum += count*(length - word_length + 1)
+            count_sum += count * (length - word_length + 1)
     return count_sum
 
 
@@ -65,13 +65,13 @@ def entropy_of_list(nodes):
     node_counts = [node.counter if str(node)[0] != split_mark else 1.
                    for node in nodes]
     count_sum = sum(node_counts)
-    probs = [count/count_sum for count in node_counts]
+    probs = [count / count_sum for count in node_counts]
 
-    entropy = -sum([prob*math.log(prob, 2) for prob in probs])
+    entropy = -sum([prob * math.log(prob, 2) for prob in probs])
 
     for node in nodes:
         if str(node)[0] == split_mark \
-              and node.counter >= 0.5 * count_sum + node.counter - 1:
+                and node.counter >= 0.5 * count_sum + node.counter - 1:
             return max(entropy, MIN_ENTROPY + 0.00001)
 
     return entropy
@@ -84,23 +84,23 @@ def mark_words(tree, reversed_tree, count_of_length, cursor, string):
     if cursor.current_node.counter >= MIN_COUNT:  # Filter by count
         if len(string) > 1:
             # Calculate co
-            p_no_split = cursor.current_node.counter/count_of_length[len(string)]
+            p_no_split = cursor.current_node.counter / count_of_length[len(string)]
 
             left_part = new_cursor(tree, string[0])
             right_part = copy.copy(cursor)
             right_part.move_front_forward(string[0])
             p_split = []
             for i in range(1, len(string)):
-                p_left = left_part.current_node.counter/count_of_length[i]
-                p_right = right_part.current_node.counter/count_of_length[len(string) - i]
-                p_split.append(p_left*p_right)
+                p_left = left_part.current_node.counter / count_of_length[i]
+                p_right = right_part.current_node.counter / count_of_length[len(string) - i]
+                p_split.append(p_left * p_right)
 
                 if i != len(string) - 1:
                     left_part.move_forward(string[i])
                     right_part.move_front_forward(string[i])
             # End of for i in range(1, len(string))
 
-            co = p_no_split/max(p_split)
+            co = p_no_split / max(p_split)
 
             if co >= MIN_CO:  # Filter by co
                 # Calculate entropy
@@ -112,11 +112,13 @@ def mark_words(tree, reversed_tree, count_of_length, cursor, string):
                 right_entropy = entropy_of_list(cursor.current_node.next.values())
 
                 # Calculate score
-                score = co*(left_entropy+right_entropy)
+                score = co * (left_entropy + right_entropy)
 
                 # Filter by score and entropy
                 if score > MIN_SCORE and left_entropy > MIN_ENTROPY and right_entropy > MIN_ENTROPY:
-                    output_file.write("%s,%d,%f,%f,%f,%f,%f\n" % (string, cursor.current_node.counter, co, left_entropy, right_entropy, left_entropy+right_entropy, score))
+                    output_file.write("%s,%d,%f,%f,%f,%f,%f\n" % (
+                    string, cursor.current_node.counter, co, left_entropy, right_entropy, left_entropy + right_entropy,
+                    score))
             # End of if co >= MIN_CO
         # End of if len(string) > 1
 
@@ -125,6 +127,8 @@ def mark_words(tree, reversed_tree, count_of_length, cursor, string):
             next_cursor = suffix_tree.Cursor(cursor.current_node, key, len(child), tree.root)
             mark_words(tree, reversed_tree, count_of_length, next_cursor, string + str(next_cursor.current_node))
     # End of if cursor.current_node.counter >= MIN_COUNT
+
+
 # End of def mark_words
 
 
@@ -141,7 +145,7 @@ def main():
                        for i in range(len(sentence_length_count))]
 
     print("Finding words")
-    process_update_interval = len(tree.root.next)//20
+    process_update_interval = len(tree.root.next) // 20
     for i, (key, child) in enumerate(tree.root.next.items()):
         if i % process_update_interval == 1:
             print("|", end="", flush=True)
@@ -149,6 +153,7 @@ def main():
         cursor = suffix_tree.Cursor(tree.root, key, len(child), tree.root)
         mark_words(tree, reversed_tree, count_of_length, cursor, str(cursor.current_node))
     print()
+
 
 if __name__ == "__main__":
     output_file = open("dict.csv", "w")

@@ -24,7 +24,7 @@ def main():
     data_frame = [list() for _ in range(number_of_chapters)]
     for word, counts in counter.items():
         # Filter features
-        normalized_variance = word_count_chapters.variance(counts)/(sum(counts)/number_of_chapters)
+        normalized_variance = word_count_chapters.variance(counts) / (sum(counts) / number_of_chapters)
         if normalized_variance > 0.85 or word in ignored_words:
             continue
 
@@ -65,7 +65,7 @@ def split_data(data_frame, prob=0.5):
     training_chapters = []
     for i, line in enumerate(data_frame):
         if adjust_prob:
-            adjusted_prob = prob/2 if i < 80 else prob
+            adjusted_prob = prob / 2 if i < 80 else prob
         else:
             adjusted_prob = prob
 
@@ -138,9 +138,10 @@ def plot_result(result):
         # plot.text(line[0], line[1], str(i+1), size=10, ha="center", va="center")
         # plot.scatter(line[0], line[1], marker=marker, c=color, s=200, linewidths=0)
 
-        plot.text(line[0], line[1], line[2], str(i+1), size=10, ha="center", va="center")
+        plot.text(line[0], line[1], line[2], str(i + 1), size=10, ha="center", va="center")
         plot.scatter(line[0], line[1], line[2], marker=marker, c=color, s=200, linewidths=0)
     plt.show()
+
 
 if __name__ == '__main__':
     main()
