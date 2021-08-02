@@ -4,6 +4,8 @@ Author: Yu Lou
 
 Written for Python 3.
 
+博文链接：[用 Python 分析《红楼梦》](https://zhuanlan.zhihu.com/p/29209681)
+
 ## preprocess.py
 
 Preprocess text.
